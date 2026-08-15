@@ -604,53 +604,132 @@ footer{border-top:1px solid var(--border);padding:40px 64px;display:flex;justify
 </footer>
 
 <script>
-// LIVE DEMO
-function runDemo(){
-  const input=document.getElementById('demoInput');
-  const btn=document.getElementById('demoBtn');
-  const stages=document.getElementById('demoStages');
-  const results=document.getElementById('demoResults');
-  const url=input.value.trim();
 
-  if(!url){
-    // Auto-fill for demo
-    input.value='https://store.example.com/product/wireless-earbuds-pro';
+  // LIVE DEMO — CONNECTED TO NEXORA BACKEND
+
+const NEXORA_API =
+  window.NEXORA_API_URL ||
+  "http://localhost:8000";
+
+async function runDemo() {
+  const input = document.getElementById("demoInput");
+  const btn = document.getElementById("demoBtn");
+  const stages = document.getElementById("demoStages");
+  const results = document.getElementById("demoResults");
+
+  const url = input.value.trim();
+
+  // Check URL
+  if (!url) {
+    alert("Please enter a product URL.");
+    return;
   }
 
-  btn.disabled=true;
-  btn.textContent='Analyzing...';
-  input.classList.add('active');
-  stages.style.display='flex';
-  results.style.display='none';
+  // Start UI
+  btn.disabled = true;
+  btn.textContent = "Analyzing...";
+  input.classList.add("active");
 
-  const ids=['s1','s2','s3','s4'];
-  const delays=[0,1200,2400,3600];
+  stages.style.display = "flex";
+  results.style.display = "none";
 
-  ids.forEach((id,i)=>{
-    setTimeout(()=>{
-      // Done previous
-      if(i>0) {
-        const prev=document.getElementById(ids[i-1]);
-        prev.classList.remove('active');
-        prev.classList.add('done');
-        prev.querySelector('.stage-icon').textContent=['✦','✦','✦'][i-1]||'✦';
-      }
-      const el=document.getElementById(id);
-      el.classList.add('active');
-      const spinner=document.createElement('span');
-      spinner.className='stage-spinner';
-      el.appendChild(spinner);
-    },delays[i]);
+  // Reset stages
+  ["s1", "s2", "s3", "s4"].forEach((id) => {
+    const el = document.getElementById(id);
+
+    el.classList.remove("active", "done");
+
+    const spinner = el.querySelector(".stage-spinner");
+    if (spinner) spinner.remove();
   });
 
-  setTimeout(()=>{
-    document.getElementById('s4').classList.remove('active');
-    document.getElementById('s4').classList.add('done');
-    results.style.display='grid';
-    btn.textContent='Run again →';
-    btn.disabled=false;
-    input.classList.remove('active');
-  },5000);
+  try {
+
+    // Stage 1
+    const s1 = document.getElementById("s1");
+    s1.classList.add("active");
+
+    // Send product URL to FastAPI
+    const response = await fetch(`${NEXORA_API}/analyze`, {
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json"
+      },
+
+      body: JSON.stringify({
+        url: url
+      })
+    });
+
+    // Read backend response
+    let data;
+
+    try {
+      data = await response.json();
+    } catch (error) {
+      throw new Error("Backend returned invalid JSON.");
+    }
+
+    // Backend error
+    if (!response.ok) {
+      const detail =
+        data?.detail ||
+        data?.error ||
+        `Backend error: HTTP ${response.status}`;
+
+      throw new Error(
+        typeof detail === "string"
+          ? detail
+          : JSON.stringify(detail)
+      );
+    }
+
+    // Backend pipeline completed
+    s1.classList.remove("active");
+    s1.classList.add("done");
+
+    const s2 = document.getElementById("s2");
+    s2.classList.add("done");
+
+    const s3 = document.getElementById("s3");
+    s3.classList.add("done");
+
+    const s4 = document.getElementById("s4");
+    s4.classList.add("done");
+
+    // Show backend result in console
+    console.log("Nexora Backend Response:", data);
+    console.log("Product:", data.product);
+    console.log("CRN:", data.crn);
+    console.log("Campaign:", data.campaign);
+
+    // Show results
+    results.style.display = "grid";
+
+    btn.textContent = "Run again →";
+
+    // Store campaign globally for later rendering
+    window.nexoraResult = data;
+    window.nexoraCampaign = data.campaign;
+
+  } catch (error) {
+
+    console.error("Nexora error:", error);
+
+    alert(
+      "Nexora backend error:\n\n" +
+      error.message
+    );
+
+    btn.textContent = "Try again →";
+
+  } finally {
+
+    btn.disabled = false;
+    input.classList.remove("active");
+
+  }
 }
 
 // WAITLIST
