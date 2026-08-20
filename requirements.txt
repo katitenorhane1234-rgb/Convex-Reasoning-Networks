@@ -4,3 +4,4 @@ pydantic
 torch
 httpx
 beautifulsoup4
+numpy
