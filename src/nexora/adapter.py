@@ -50,11 +50,14 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 from typing import Optional
+# ── Project paths ──
+_SRC = Path(__file__).resolve().parent.parent
+_ROOT = _SRC.parent
+_CRN = _ROOT / "crn"
 
-# ── Path setup: allow imports from src/ regardless of working directory ──
-_SRC = Path(__file__).resolve().parent.parent   # .../src/
-if str(_SRC) not in sys.path:
-    sys.path.insert(0, str(_SRC))
+for _path in (_SRC, _ROOT, _CRN):
+    if str(_path) not in sys.path:
+        sys.path.insert(0, str(_path))
 
 try:
     import torch
