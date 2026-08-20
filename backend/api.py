@@ -16,13 +16,12 @@ import sys
 import time
 from pathlib import Path
 
-# Allow imports from Nexora/src/
+# Allow imports from src/
 ROOT_DIR = Path(__file__).resolve().parent.parent
-NEXORA_SRC = ROOT_DIR / "Nexora" / "src"
+NEXORA_SRC = ROOT_DIR / "src"
 
 if str(NEXORA_SRC) not in sys.path:
     sys.path.insert(0, str(NEXORA_SRC))
-
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, HttpUrl, field_validator
