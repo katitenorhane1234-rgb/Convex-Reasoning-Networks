@@ -16,8 +16,12 @@ import sys
 import time
 from pathlib import Path
 
-# Allow imports from src/
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+# Allow imports from Nexora/src/
+ROOT_DIR = Path(__file__).resolve().parent.parent
+NEXORA_SRC = ROOT_DIR / "Nexora" / "src"
+
+if str(NEXORA_SRC) not in sys.path:
+    sys.path.insert(0, str(NEXORA_SRC))
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
