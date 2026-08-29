@@ -23,6 +23,7 @@ NEXORA_SRC = ROOT_DIR / "src"
 if str(NEXORA_SRC) not in sys.path:
     sys.path.insert(0, str(NEXORA_SRC))
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, HttpUrl, field_validator
 
@@ -40,6 +41,9 @@ app = FastAPI(
     version="1.0.0",
     docs_url="/docs",
 )
+@app.get("/")
+async def home():
+    return FileResponse(ROOT_DIR / "index.html")
 
 # CORS — GitHub Pages origin + localhost for dev
 ALLOWED_ORIGINS = [
