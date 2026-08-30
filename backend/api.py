@@ -1,4 +1,4 @@
-cat > /mnt/user-data/outputs/api.py << 'EOF'
+
 """
 backend/api.py
 ==============
@@ -262,5 +262,4 @@ if __name__ == "__main__":
         port=PORT,
         reload=False,
     )
-EOF
-echo "done"
+    
